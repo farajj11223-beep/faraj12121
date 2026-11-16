@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b4c70">
+<title>قطار التحدي العلمي | السلاسل الغذائية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0b4c70; --navy-d:#073652; --navy-l:#e3f0f7;
+  --ink:#1d2b36; --muted:#677985; --bg:#eef5f9; --card:#fff;
+  --ok:#2e9d5b; --ok-l:#e3f6ea; --bad:#d9534f; --bad-l:#fbe7e6; --gold:#f5b324; --gold-l:#fff4d9;
+  --g0:#e74c3c; --g1:#2f80ed; --g2:#27ae60; --g3:#f39c12;
+  --r:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:'Tajawal',system-ui,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh}
+button{font-family:inherit;cursor:pointer;border:none}
+.hidden{display:none!important}
+
+/* top bar */
+.topbar{background:linear-gradient(135deg,var(--navy-d),var(--navy) 60%,#1679a8);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 4px 18px rgba(11,76,112,.3)}
+.topbar .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:22px;color:#fff;text-decoration:none}
+.topbar .brand span.ic{font-size:30px}
+.pill{background:rgba(255,255,255,.16);border-radius:999px;padding:5px 12px;font-size:14px;font-weight:700}
+.top-actions{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap}
+.tbtn{background:rgba(255,255,255,.14);color:#fff;font-weight:700;font-size:15px;padding:9px 14px;border-radius:12px}
+.tbtn:hover{background:rgba(255,255,255,.26)}
+.tbtn.gold{background:var(--gold);color:#3a2a00}
+
+.wrap{max-width:1180px;margin:0 auto;padding:16px}
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:0 4px 18px rgba(11,76,112,.08);margin-bottom:16px}
+h2{margin:0 0 10px;color:var(--navy);font-size:22px}
+.muted{color:var(--muted)}
+.btn{background:var(--navy);color:#fff;font-weight:800;font-size:17px;padding:12px 22px;border-radius:14px;box-shadow:0 4px 0 var(--navy-d)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--navy-d)}
+.btn.gold{background:var(--gold);color:#3a2a00;box-shadow:0 4px 0 #c48a0a}
+.btn.ghost{background:#e8eff3;color:var(--ink);box-shadow:0 4px 0 #c9d6de}
+.btn.red{background:var(--bad);box-shadow:0 4px 0 #a83a37}
+.btn:disabled{opacity:.45;pointer-events:none}
+
+/* track board */
+.board{overflow-x:auto}
+.stations{display:grid;grid-template-columns:150px repeat(7,1fr);gap:4px;margin-bottom:6px;min-width:760px}
+.stations div{text-align:center;font-size:13px;font-weight:800;color:var(--navy);background:var(--navy-l);border-radius:10px;padding:6px 2px}
+.stations div:first-child{background:none}
+.stations .win{background:var(--gold-l);color:#8a5a00}
+.lane{display:grid;grid-template-columns:150px 1fr;gap:4px;align-items:center;margin:8px 0;min-width:760px}
+.gname{border-radius:12px;color:#fff;padding:8px 10px;font-weight:800;font-size:15px;line-height:1.3}
+.gname small{display:block;font-weight:700;opacity:.95;font-size:13px}
+.rail{position:relative;height:56px;border-radius:14px;background:repeating-linear-gradient(90deg,#c7d3da 0 4px,transparent 4px 18px),linear-gradient(#f4f8fa,#f4f8fa);overflow:hidden}
+.rail::before,.rail::after{content:"";position:absolute;inset-inline:0;height:4px;background:var(--c);opacity:.65}
+.rail::before{top:18px}.rail::after{bottom:18px}
+.dots{position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,1fr)}
+.dots span{display:flex;align-items:center;justify-content:center}
+.dots span i{width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--c);display:block;z-index:1}
+.dots span.reached i{background:var(--c)}
+.train{position:absolute;top:50%;font-size:36px;transform:translate(50%,-50%);transition:inset-inline-start .9s cubic-bezier(.3,1.4,.5,1);z-index:2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+
+/* question area */
+.qhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.qtype{background:var(--navy-l);color:var(--navy);font-weight:800;border-radius:999px;padding:6px 14px}
+.qnum{color:var(--muted);font-weight:700}
+.timer{margin-inline-start:auto;display:flex;align-items:center;gap:8px;font-weight:900;font-size:26px;color:var(--navy)}
+.timer.low{color:var(--bad)}
+.tbar{height:10px;border-radius:10px;background:#e6edf1;overflow:hidden;margin-bottom:14px}
+.tbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#f7d05a);transition:width .25s linear}
+.qtext{font-size:26px;font-weight:800;line-height:1.6;background:var(--gold-l);border-inline-start:6px solid var(--gold);border-radius:14px;padding:14px 18px;margin-bottom:14px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{background:#f4f8fa;border:3px solid #d6e2e9;border-radius:16px;padding:14px;font-size:21px;font-weight:800;color:var(--ink);text-align:right;display:flex;gap:10px;align-items:center}
+.opt b{background:var(--navy);color:#fff;border-radius:10px;min-width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.opt:disabled{cursor:default}
+.opts.armed .opt:not(:disabled):hover{border-color:var(--navy);background:var(--navy-l)}
+.opt.right{background:var(--ok-l);border-color:var(--ok)}
+.opt.wrong{background:var(--bad-l);border-color:var(--bad);opacity:.7}
+.who{margin-top:14px;padding-top:14px;border-top:2px dashed #dde7ed}
+.who p{margin:0 0 8px;font-weight:800}
+.gbtns{display:flex;gap:10px;flex-wrap:wrap}
+.gbtn{color:#fff;font-weight:800;font-size:17px;padding:12px 18px;border-radius:14px;border:4px solid transparent}
+.gbtn.active{border-color:#1d2b36;transform:scale(1.06)}
+.gbtn:disabled{opacity:.3}
+.msg{min-height:30px;margin-top:12px;font-weight:800;font-size:19px}
+.msg.ok{color:var(--ok)} .msg.bad{color:var(--bad)}
+.explain{background:var(--navy-l);border-radius:12px;padding:10px 14px;margin-top:8px;font-weight:600}
+.startbox{text-align:center;padding:10px}
+.modes{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.mode{background:#f4f8fa;border:3px solid #d6e2e9;border-radius:16px;padding:14px 18px;min-width:230px;font-weight:800;font-size:18px;color:var(--ink)}
+.mode small{display:block;font-weight:600;color:var(--muted);font-size:14px;margin-top:4px}
+.mode.on{border-color:var(--navy);background:var(--navy-l)}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(7,30,45,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal{background:#fff;border-radius:20px;max-width:720px;width:100%;max-height:90vh;overflow:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal h3{margin:0 0 12px;color:var(--navy);font-size:22px}
+.field{margin:12px 0}
+.field label{display:block;font-weight:800;margin-bottom:6px}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{background:#eef3f6;border:2px solid #d6e2e9;border-radius:12px;padding:8px 14px;font-weight:800;font-size:16px;color:var(--ink)}
+.seg button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.gedit{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;margin:6px 0}
+.gedit input{font-family:inherit;font-size:16px;padding:8px 10px;border-radius:10px;border:2px solid #d6e2e9}
+.gedit .pts{font-weight:800;min-width:70px;text-align:center}
+.sm{background:#eef3f6;border-radius:10px;padding:6px 12px;font-weight:900;font-size:16px}
+.mrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.rules{line-height:2;padding-inline-start:20px;margin:0}
+table{width:100%;border-collapse:collapse;margin-top:8px;font-size:15px}
+th,td{border:1px solid #dbe5eb;padding:8px;text-align:center}
+th{background:var(--navy);color:#fff}
+.lv-h{background:var(--ok-l);color:#1e6e3f;font-weight:800}
+.lv-m{background:var(--gold-l);color:#8a5a00;font-weight:800}
+.lv-l{background:var(--bad-l);color:#9c2f2c;font-weight:800}
+.lv-n{color:var(--muted)}
+.close-msg{text-align:center;font-weight:900;color:var(--navy);font-size:19px;margin-top:14px}
+
+/* win */
+.winbox{text-align:center}
+.winbox .big{font-size:80px}
+.rank{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+.rank div{display:flex;justify-content:space-between;background:#f4f8fa;border-radius:12px;padding:8px 14px;font-weight:800}
+.confetti{position:fixed;top:-30px;font-size:26px;pointer-events:none;animation:fall linear forwards;z-index:60}
+@keyframes fall{to{transform:translateY(110vh) rotate(600deg)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:12px;font-weight:800;z-index:70}
+footer{text-align:center;color:var(--muted);padding:10px 0 30px;font-size:14px}
+
+@media (max-width:700px){
+  .opts{grid-template-columns:1fr}
+  .qtext{font-size:21px}
+  .opt{font-size:18px}
+  .topbar .brand{font-size:18px}
+}
+@media print{
+  body{background:#fff}
+  body > *:not(#reportModal){display:none!important}
+  #reportModal{position:static;background:none;padding:0}
+  #reportModal .modal{box-shadow:none;max-height:none;overflow:visible}
+  .no-print{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#" onclick="return false"><span class="ic">🚂</span> قطار التحدي العلمي | السلاسل الغذائية</a>
+  <span class="pill">الصف السادس الابتدائي · العلوم</span>
+  <span class="pill" id="teacherPill"></span>
+  <div class="top-actions">
+    <button class="tbtn" id="howBtn">❓ طريقة اللعب</button>
+    <button class="tbtn" id="reportBtn">📊 تقرير الإتقان</button>
+    <button class="tbtn gold" id="dashBtn">⚙️ لوحة المعلمة</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <h2>🛤️ سباق القطارات</h2>
+    <div class="board">
+      <div class="stations" id="stations"></div>
+      <div id="lanes"></div>
+    </div>
+  </section>
+
+  <!-- start -->
+  <section class="card" id="startCard">
+    <div class="startbox">
+      <h2>اختاري نوع التحدي</h2>
+      <p class="muted">أول قطار يُكمل ٦ إجابات صحيحة يصل إلى محطة الفوز 🏆</p>
+      <div class="modes">
+        <button class="mode on" data-mode="review">🔁 مراجعة متنوعة<small>الأسئلة تتناوب على مهارات الدرس مع شرح بعد كل سؤال</small></button>
+        <button class="mode" data-mode="final">📝 تقييم ختامي<small>أسئلة عشوائية من الدرس كاملاً بدون شرح</small></button>
+      </div>
+      <button class="btn gold" id="startBtn">🚦 انطلقي! اعرضي السؤال</button>
+    </div>
+  </section>
+
+  <!-- question -->
+  <section class="card hidden" id="qCard">
+    <div class="qhead">
+      <span class="qtype" id="qType"></span>
+      <span class="qnum" id="qNum"></span>
+      <div class="timer" id="timer">⏱️ <span id="tLeft">60</span></div>
+    </div>
+    <div class="tbar"><i id="tBar" style="width:100%"></i></div>
+    <div class="qtext" id="qText"></div>
+    <div class="opts" id="opts"></div>
+    <div class="who" id="whoBox">
+      <p>✋ اضغطي على المجموعة التي رفعت إشارة الاستعداد أولاً:</p>
+      <div class="gbtns" id="gbtns"></div>
+    </div>
+    <div class="msg" id="msg"></div>
+    <div id="explain"></div>
+    <div class="mrow">
+      <button class="btn" id="nextBtn">السؤال التالي ⬅</button>
+      <button class="btn ghost" id="skipBtn">تخطي السؤال</button>
+    </div>
+  </section>
+</main>
+
+<footer>إعداد: <span class="teacherName"></span> · قطار التحدي العلمي</footer>
+
+<!-- Dashboard -->
+<div class="overlay hidden" id="dashModal">
+  <div class="modal">
+    <h3>⚙️ لوحة المعلمة</h3>
+    <div class="field"><label>⏱️ وقت السؤال (بالثواني)</label><div class="seg" id="segTime"></div></div>
+    <div class="field"><label>⭐ أعلى نقاط للإجابة</label><div class="seg" id="segPts"></div></div>
+    <div class="field"><label>👥 أسماء المجموعات وتعديل النقاط يدوياً</label><div id="gEdit"></div>
+      <small class="muted">تعديل النقاط يدوياً لا يؤثر على نسب الإتقان.</small></div>
+    <div class="mrow">
+      <button class="btn" id="saveBtn">💾 حفظ الإعدادات</button>
+      <button class="btn red" id="resetBtn">🔄 تصفير النتائج والمحطات والإتقان</button>
+      <button class="btn gold" id="dashReportBtn">📊 تحليل الإتقان وعرض التقرير</button>
+      <button class="btn ghost" data-close>إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm -->
+<div class="overlay hidden" id="confirmModal">
+  <div class="modal" style="max-width:460px;text-align:center">
+    <div style="font-size:48px">⚠️</div>
+    <h3>تأكيد التصفير</h3>
+    <p>ستعود القطارات الأربعة إلى البداية، وستُحذف النقاط ومحاولات الإتقان. هل أنتِ متأكدة؟</p>
+    <div class="mrow" style="justify-content:center">
+      <button class="btn red" id="yesReset">نعم، تصفير</button>
+      <button class="btn ghost" data-close>إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- How to play -->
+<div class="overlay hidden" id="howModal">
+  <div class="modal">
+    <h3>❓ طريقة اللعب</h3>
+    <ol class="rules">
+      <li>تختار المعلمة: <b>مراجعة متنوعة</b> أو <b>تقييم ختامي</b>. تستمر الأسئلة حتى يفوز أحد القطارات.</li>
+      <li>يفوز القطار عندما تُكمل مجموعته <b>٦ إجابات صحيحة</b>، وتنتهي اللعبة فوراً. تُضاف أسئلة إضافية عند الحاجة، فلا تنتهي اللعبة بانتهاء الأسئلة.</li>
+      <li>تتناوب أنواع الأسئلة: المنتجات والمستهلكات، السلسلة الغذائية، الشبكة الغذائية، هرم الطاقة. تقرأ المجموعات السؤال ويبدأ الوقت.</li>
+      <li>تختار المعلمة أول مجموعة رفعت إشارة الاستعداد، فيتوقف وقت هذه المجموعة.</li>
+      <li>تضغط المعلمة على إجابة المجموعة من الخيارات.</li>
+      <li>عند الإجابة الصحيحة يتقدم قطار المجموعة محطة واحدة، وكلما كانت الإجابة أسرع زادت النقاط.</li>
+      <li>الإجابة الخاطئة لا تخصم نقاطاً، ويستمر الوقت، وتنتقل الفرصة إلى مجموعة أخرى.</li>
+      <li>كل إجابة صحيحة تُقدّم القطار محطة واحدة مهما كان نوع السؤال، ونقاط السرعة تحدد ترتيب المجموعات.</li>
+    </ol>
+    <p class="muted">النقاط والمحطات تُحفظ في هذا المتصفح. اللعبة مصممة لشاشة عرض واحدة في الفصل.</p>
+    <div class="mrow"><button class="btn" data-close>فهمت 👍</button></div>
+  </div>
+</div>
+
+<!-- Report -->
+<div class="overlay hidden" id="reportModal">
+  <div class="modal">
+    <h3>📊 تقرير الإتقان — السلاسل الغذائية</h3>
+    <p class="muted" style="margin:0">المعلمة: <span class="teacherName"></span> · الصف السادس · التاريخ: <span id="repDate"></span></p>
+    <p style="margin:8px 0">نسبة الإتقان = الإجابات الصحيحة ÷ محاولات الإجابة × ١٠٠ &nbsp;|&nbsp;
+      <span class="lv-h">&nbsp;إتقان عالٍ ٨٠٪ فأكثر&nbsp;</span>
+      <span class="lv-m">&nbsp;متوسط ٦٠٪ – أقل من ٨٠٪&nbsp;</span>
+      <span class="lv-l">&nbsp;يحتاج دعم أقل من ٦٠٪&nbsp;</span></p>
+    <div id="repBody"></div>
+    <p class="muted" style="font-size:13px">الأسئلة التي لم تُجب لا تُحتسب، وتعديل النقاط يدوياً لا يؤثر على الإتقان.</p>
+    <div class="close-msg">أحسنتنّ يا بطلات العلوم! كل محاولة خطوة نحو الإتقان 🌿</div>
+    <div class="mrow no-print">
+      <button class="btn gold" id="printBtn">🖨️ طباعة / حفظ PDF</button>
+      <button class="btn ghost" data-close>إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- Win -->
+<div class="overlay hidden" id="winModal">
+  <div class="modal winbox" style="max-width:520px">
+    <div class="big">🏆</div>
+    <h3 id="winTitle"></h3>
+    <p class="muted">ترتيب المجموعات حسب نقاط السرعة:</p>
+    <div class="rank" id="rankList"></div>
+    <div class="mrow" style="justify-content:center">
+      <button class="btn gold" id="winReport">📊 تقرير الإتقان</button>
+      <button class="btn" id="newGame">🚂 جولة جديدة</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ الإعدادات ============ */
+const TEACHER = "أ. ورد المحمادي";   // اسم المعلمة
+const WIN_AT = 6;
+const STATIONS = ["المنتجات والمستهلكات","السلسلة الغذائية","الشبكة الغذائية","هرم الطاقة","الإتقان","الفوز 🏆"];
+const TYPES = ["المنتجات والمستهلكات","السلسلة الغذائية","الشبكة الغذائية","هرم الطاقة"];
+const COLORS = ["var(--g0)","var(--g1)","var(--g2)","var(--g3)"];
+const DEFAULT_NAMES = ["قطار الأحمر","قطار الأزرق","قطار الأخضر","قطار البرتقالي"];
+const LETTERS = ["أ","ب","ج","د"];
+
+/* ============ بنك الأسئلة: [السؤال، الخيارات، رقم الإجابة الصحيحة، الشرح] ============ */
+const BANK = [
+ [ // المنتجات والمستهلكات
+  ["أيّ المخلوقات التالية يُعد منتِجاً؟",["الأرنب","العشب","الصقر","الفطر"],1,"العشب نبات يصنع غذاءه بنفسه بعملية البناء الضوئي."],
+  ["المخلوق الذي يحلّل بقايا المخلوقات الميتة يسمى:",["منتِجاً","مستهلِكاً أول","محلِّلاً","مستهلِكاً ثانياً"],2,"المحلِّلات مثل البكتيريا والفطريات تعيد المواد إلى التربة."],
+  ["الحيوان الذي يتغذى على النباتات فقط يسمى:",["آكل لحوم","آكل أعشاب","قارِتاً","محلِّلاً"],1,"آكلات الأعشاب تتغذى على النباتات فقط مثل الأرنب والغزال."],
+  ["الدب يأكل الأسماك والتوت، لذلك فهو:",["آكل أعشاب","آكل لحوم","قارِت","منتِج"],2,"القارِت يتغذى على النباتات والحيوانات معاً."],
+  ["من أين تحصل المنتِجات على الطاقة اللازمة لصنع غذائها؟",["من التربة","من الشمس","من الحيوانات","من الماء فقط"],1,"الشمس هي مصدر الطاقة الأساسي للنباتات."],
+  ["أيّ مما يلي من المحلِّلات؟",["البكتيريا","الجرادة","القمح","الأسد"],0,"البكتيريا تحلّل بقايا المخلوقات الميتة."],
+  ["العملية التي تصنع بها النباتات غذاءها تسمى:",["التنفس","البناء الضوئي","التحلل","الهضم"],1,"في البناء الضوئي يستعمل النبات ضوء الشمس لصنع الغذاء."],
+  ["الأسد يتغذى على الحمار الوحشي، لذلك فالأسد:",["منتِج","آكل أعشاب","آكل لحوم","محلِّل"],2,"الأسد يتغذى على الحيوانات فهو آكل لحوم."]
+ ],
+ [ // السلسلة الغذائية
+  ["في السلسلة: عشب ⬅ أرنب ⬅ ثعلب، المستهلِك الأول هو:",["العشب","الأرنب","الثعلب","الشمس"],1,"الأرنب أول من يتغذى على المنتِج (العشب)."],
+  ["تبدأ معظم السلاسل الغذائية بـ:",["مستهلِك","منتِج","محلِّل","آكل لحوم"],1,"المنتِج يصنع الغذاء فهو بداية السلسلة."],
+  ["تشير الأسهم في السلسلة الغذائية إلى اتجاه:",["حركة الحيوان","انتقال الطاقة","نمو النبات","جريان الماء"],1,"السهم يتجه من المخلوق المأكول إلى المخلوق الآكل، أي اتجاه انتقال الطاقة."],
+  ["أيّ ترتيب يمثّل سلسلة غذائية صحيحة؟",["ثعبان ⬅ فأر ⬅ قمح","قمح ⬅ فأر ⬅ ثعبان","فأر ⬅ قمح ⬅ ثعبان","قمح ⬅ ثعبان ⬅ فأر"],1,"تبدأ بالمنتِج (القمح) ثم الفأر الذي يأكله ثم الثعبان."],
+  ["في السلسلة: طحالب ⬅ سمكة صغيرة ⬅ سمكة كبيرة ⬅ فقمة، المستهلِك الثالث هو:",["السمكة الصغيرة","السمكة الكبيرة","الفقمة","الطحالب"],2,"الطحالب منتِج، ثم مستهلِك أول وثانٍ، والفقمة مستهلِك ثالث."],
+  ["في السلسلة: عشب ⬅ جرادة ⬅ ضفدع ⬅ ثعبان، يُعد الضفدع:",["منتِجاً","مستهلِكاً أول","مستهلِكاً ثانياً","مستهلِكاً ثالثاً"],2,"الجرادة مستهلِك أول، والضفدع الذي يأكلها مستهلِك ثانٍ."],
+  ["في السلسلة: عشب ⬅ أرنب ⬅ ثعلب، إذا اختفت الثعالب فإن عدد الأرانب غالباً:",["يقل","يزداد","لا يتغير","تختفي الأرانب"],1,"عدم وجود المفترس يجعل عدد الأرانب يزداد."],
+  ["السلسلة الغذائية هي:",["مسار انتقال الطاقة من مخلوق حي إلى آخر","مجموعة من الحيوانات المفترسة","المكان الذي تعيش فيه المخلوقات","نوع من النباتات"],0,"السلسلة الغذائية توضح كيف تنتقل الطاقة بين المخلوقات."]
+ ],
+ [ // الشبكة الغذائية
+  ["تتكوّن الشبكة الغذائية من:",["سلسلة غذائية واحدة","عدة سلاسل غذائية متداخلة","منتِجات فقط","محلِّلات فقط"],1,"الشبكة الغذائية مجموعة سلاسل مترابطة."],
+  ["لماذا تُعد الشبكة الغذائية أقرب إلى الواقع من السلسلة الغذائية؟",["لأن المخلوق يتغذى على أكثر من نوع","لأنها أقصر","لأنها لا تحتوي منتِجات","لأنها لا تنقل الطاقة"],0,"في الطبيعة يأكل المخلوق أنواعاً مختلفة من الغذاء."],
+  ["الصقر يتغذى على الفأر والثعبان والعصفور، وهذا يوضّح:",["سلسلة غذائية","شبكة غذائية","عملية التحلل","البناء الضوئي"],1,"تعدد مصادر غذاء الصقر يربط عدة سلاسل في شبكة."],
+  ["ماذا يحدث إذا اختفت المنتِجات من الشبكة الغذائية؟",["تتأثر جميع المخلوقات","لا يتأثر أحد","تتأثر المحلِّلات فقط","يزداد الغذاء"],0,"المنتِجات أساس الطاقة لكل مخلوقات الشبكة."],
+  ["في الشبكة الغذائية يمكن للمخلوق الواحد أن يكون:",["جزءاً من أكثر من سلسلة","في سلسلة واحدة فقط","خارج الشبكة","بلا مصدر طاقة"],0,"المخلوق قد يأكل أو يُؤكل في أكثر من سلسلة."],
+  ["إذا زاد عدد الجراد كثيراً في شبكة غذائية فإن كمية العشب غالباً:",["تزداد","تقل","لا تتغير","تتضاعف"],1,"زيادة الجراد تعني أكلاً أكثر للعشب."],
+  ["ما المخلوقات التي توجد عادة في بداية كل سلاسل الشبكة الغذائية؟",["المنتِجات","آكلات اللحوم","القوارت","المستهلِكات الثالثة"],0,"كل سلسلة تبدأ بمنتِج."],
+  ["تعيد المحلِّلات في الشبكة الغذائية المواد إلى:",["الهواء فقط","التربة","الشمس","الحيوانات المفترسة"],1,"المحلِّلات تعيد المواد الغذائية إلى التربة لتستفيد منها النباتات."]
+ ],
+ [ // هرم الطاقة
+  ["يوضّح هرم الطاقة:",["كمية الطاقة المنتقلة في كل مستوى","عدد الحيوانات في الغابة","أطوال النباتات","أنواع التربة"],0,"هرم الطاقة يبيّن كمية الطاقة في كل مستوى غذائي."],
+  ["في قاعدة هرم الطاقة توجد:",["المنتِجات","آكلات اللحوم","المحلِّلات","المستهلِكات الثالثة"],0,"المنتِجات في القاعدة لأنها تملك أكبر كمية طاقة."],
+  ["كلما صعدنا إلى أعلى هرم الطاقة فإن الطاقة:",["تزداد","تقل","تبقى ثابتة","تتضاعف"],1,"جزء كبير من الطاقة يُستهلك في كل مستوى."],
+  ["ينتقل من كل مستوى إلى المستوى الذي يليه في هرم الطاقة:",["جزء قليل من الطاقة","كل الطاقة","ضعف الطاقة","لا شيء من الطاقة"],0,"ينتقل جزء قليل فقط (حوالي ١٠٪)."],
+  ["أين تذهب معظم الطاقة في كل مستوى من مستويات الهرم؟",["يستعملها المخلوق للعيش ويفقد جزءاً منها حرارةً","تنتقل كلها للمستوى التالي","تعود إلى الشمس","تُخزن في التربة"],0,"المخلوق يستعمل معظم الطاقة في الحركة والنمو ويفقد جزءاً حرارةً."],
+  ["أيّ المستويات يحصل على أقل كمية من الطاقة؟",["المنتِجات","المستهلِكات الأولى","المستهلِكات الثانية","المستهلِكات في قمة الهرم"],3,"قمة الهرم تصلها أقل كمية من الطاقة."],
+  ["لماذا يكون عدد المخلوقات في قمة هرم الطاقة قليلاً؟",["لأن الطاقة المتاحة لها قليلة","لأنها كبيرة الحجم فقط","لأنها لا تتغذى","لأنها منتِجات"],0,"الطاقة القليلة في القمة لا تكفي إلا عدداً قليلاً من المخلوقات."],
+  ["إذا كان في مستوى المنتِجات ١٠٠٠٠ وحدة طاقة، فكم يصل تقريباً إلى المستهلِك الأول؟",["١٠٠٠ وحدة","١٠٠٠٠ وحدة","٢٠٠٠٠ وحدة","١٠ وحدات"],0,"ينتقل حوالي ١٠٪ فقط: ١٠٠٠٠ × ١٠٪ = ١٠٠٠."]
+ ]
+];
+
+/* ============ الحالة ============ */
+const KEY = "food-chain-train-v1";
+const $ = id => document.getElementById(id);
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const toAr = n => String(n).replace(/\d/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
+
+function fresh(){
+  return {
+    settings:{time:60,pts:50},
+    mode:"review",
+    groups:DEFAULT_NAMES.map(n=>({name:n,points:0,stations:0})),
+    mastery:[0,1,2,3].map(()=>TYPES.map(()=>({a:0,c:0}))),
+    qCount:0, typeTurn:0, used:TYPES.map(()=>[])
+  };
+}
+let S = fresh();
+function load(){ try{ const d=JSON.parse(localStorage.getItem(KEY)); if(d&&d.groups) S=Object.assign(fresh(),d); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+
+/* ============ أصوات ============ */
+let actx=null;
+function tone(seq){
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    let t=actx.currentTime;
+    seq.forEach(([f,d])=>{ const o=actx.createOscillator(),g=actx.createGain(); o.connect(g);g.connect(actx.destination);
+      o.frequency.value=f; g.gain.setValueAtTime(.13,t); g.gain.exponentialRampToValueAtTime(.001,t+d); o.start(t); o.stop(t+d); t+=d*.8; });
+  }catch(e){}
+}
+const sOk=()=>tone([[660,.12],[880,.12],[1100,.18]]);
+const sBad=()=>tone([[240,.18],[180,.25]]);
+const sWin=()=>tone([[523,.15],[659,.15],[784,.15],[1047,.35]]);
+const sTick=()=>tone([[900,.05]]);
+
+/* ============ اللوحة ============ */
+function renderBoard(){
+  $("stations").innerHTML = "<div></div><div>🚉 البداية</div>" + STATIONS.map((s,i)=>`<div class="${i===5?'win':''}">${s}</div>`).join("");
+  $("lanes").innerHTML = S.groups.map((g,i)=>`
+    <div class="lane" style="--c:${COLORS[i]}">
+      <div class="gname" style="background:${COLORS[i]}">${esc(g.name)}<small>⭐ ${toAr(g.points)} نقطة · ${toAr(g.stations)}/${toAr(WIN_AT)}</small></div>
+      <div class="rail">
+        <div class="dots">${[0,1,2,3,4,5,6].map(k=>`<span class="${k<=g.stations?'reached':''}"><i></i></span>`).join("")}</div>
+        <div class="train" style="inset-inline-start:${(g.stations+0.5)/7*100}%">🚂</div>
+      </div>
+    </div>`).join("");
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+/* ============ الأسئلة ============ */
+let Q=null, timerId=null, left=0, activeG=null, tried=[], over=false;
+
+function pickQuestion(){
+  let t;
+  if(S.mode==="review"){ t=S.typeTurn%4; S.typeTurn++; }
+  else t=Math.floor(Math.random()*4);
+  if(S.used[t].length>=BANK[t].length) S.used[t]=[];   // أسئلة إضافية عند الحاجة
+  const avail=BANK[t].map((_,i)=>i).filter(i=>!S.used[t].includes(i));
+  const i=avail[Math.floor(Math.random()*avail.length)];
+  S.used[t].push(i);
+  const [q,opts,ans,ex]=BANK[t][i];
+  const order=shuffle([0,1,2,3]);
+  return {t,q,opts:order.map(k=>opts[k]),ans:order.indexOf(ans),ex};
+}
+
+function showQuestion(){
+  if(winner()!==null) return;
+  Q=pickQuestion(); S.qCount++; save();
+  activeG=null; tried=[]; over=false;
+  $("startCard").classList.add("hidden"); $("qCard").classList.remove("hidden");
+  $("qType").textContent="🏷️ "+TYPES[Q.t];
+  $("qNum").textContent="السؤال "+toAr(S.qCount)+" · "+(S.mode==="review"?"مراجعة متنوعة":"تقييم ختامي");
+  $("qText").textContent=Q.q;
+  $("opts").innerHTML=Q.opts.map((o,i)=>`<button class="opt" data-i="${i}" disabled><b>${LETTERS[i]}</b>${esc(o)}</button>`).join("");
+  $("opts").classList.remove("armed");
+  $("opts").querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(+b.dataset.i,b));
+  $("gbtns").innerHTML=S.groups.map((g,i)=>`<button class="gbtn" data-g="${i}" style="background:${COLORS[i]}">${esc(g.name)}</button>`).join("");
+  $("gbtns").querySelectorAll(".gbtn").forEach(b=>b.onclick=()=>chooseGroup(+b.dataset.g));
+  $("whoBox").classList.remove("hidden");
+  setMsg("",""); $("explain").innerHTML="";
+  $("nextBtn").classList.add("hidden"); $("skipBtn").classList.remove("hidden");
+  left=S.settings.time; drawTimer();
+  clearInterval(timerId); timerId=setInterval(tick,1000);
+  window.scrollTo({top:$("qCard").offsetTop-10,behavior:"smooth"});
+}
+function drawTimer(){
+  $("tLeft").textContent=toAr(left);
+  $("tBar").style.width=(left/S.settings.time*100)+"%";
+  $("timer").classList.toggle("low",left<=10);
+}
+function tick(){
+  if(activeG!==null) return;          // وقت المجموعة المختارة متوقف
+  left--; drawTimer();
+  if(left<=5&&left>0) sTick();
+  if(left<=0){ clearInterval(timerId); endQuestion(null,"⏰ انتهى الوقت!"); }
+}
+function chooseGroup(g){
+  if(over||tried.includes(g)) return;
+  activeG=g;
+  $("gbtns").querySelectorAll(".gbtn").forEach(b=>b.classList.toggle("active",+b.dataset.g===g));
+  $("opts").classList.add("armed");
+  $("opts").querySelectorAll(".opt").forEach(b=>{ if(!b.classList.contains("wrong")) b.disabled=false; });
+  setMsg(`⏸️ توقف وقت «${S.groups[g].name}» — اضغطي على إجابتهن`,"");
+}
+function answer(i,btn){
+  if(over||activeG===null) return;
+  const g=activeG, m=S.mastery[g][Q.t];
+  m.a++;
+  if(i===Q.ans){
+    m.c++;
+    const pts=Math.max(Math.round(S.settings.pts*left/S.settings.time), Math.round(S.settings.pts*0.2));
+    S.groups[g].points+=pts; S.groups[g].stations=Math.min(WIN_AT,S.groups[g].stations+1);
+    btn.classList.add("right"); sOk(); confetti(18);
+    endQuestion(g,`✔ إجابة صحيحة! «${S.groups[g].name}» +${toAr(pts)} نقطة ويتقدم القطار محطة 🚂`);
+  } else {
+    btn.classList.add("wrong"); btn.disabled=true; sBad();
+    tried.push(g); activeG=null;
+    $("opts").classList.remove("armed");
+    $("opts").querySelectorAll(".opt").forEach(b=>b.disabled=true);
+    $("gbtns").querySelectorAll(".gbtn").forEach(b=>{ b.classList.remove("active"); if(tried.includes(+b.dataset.g)) b.disabled=true; });
+    save();
+    const remaining=[0,1,2,3].filter(x=>!tried.includes(x));
+    if(remaining.length===0 || Q.opts.length-$("opts").querySelectorAll(".wrong").length<=1){
+      clearInterval(timerId); endQuestion(null,"✘ إجابة خاطئة — انتهت المحاولات"); return;
+    }
+    setMsg(`✘ إجابة خاطئة بدون خصم — يستمر الوقت وتنتقل الفرصة لمجموعة أخرى ✋`,"bad");
+  }
+}
+function endQuestion(winnerG,text){
+  over=true; clearInterval(timerId);
+  $("opts").querySelectorAll(".opt").forEach((b,i)=>{ b.disabled=true; if(i===Q.ans) b.classList.add("right"); });
+  $("opts").classList.remove("armed");
+  $("gbtns").querySelectorAll(".gbtn").forEach(b=>b.disabled=true);
+  setMsg(text, winnerG!==null?"ok":"bad");
+  if(S.mode==="review") $("explain").innerHTML=`<div class="explain">💡 ${esc(Q.ex)}</div>`;
+  else if(winnerG===null) $("explain").innerHTML=`<div class="explain">الإجابة الصحيحة: <b>${esc(Q.opts[Q.ans])}</b></div>`;
+  $("nextBtn").classList.remove("hidden"); $("skipBtn").classList.add("hidden");
+  save(); renderBoard();
+  const w=winner(); if(w!==null) setTimeout(()=>showWin(w),1100);
+}
+function setMsg(t,c){ $("msg").textContent=t; $("msg").className="msg "+c; }
+function winner(){ const i=S.groups.findIndex(g=>g.stations>=WIN_AT); return i<0?null:i; }
+
+function showWin(w){
+  sWin(); confetti(90);
+  $("winTitle").textContent=`🎉 فاز «${S.groups[w].name}» ووصل إلى محطة الفوز!`;
+  const ranked=S.groups.map((g,i)=>({...g,i})).sort((a,b)=>b.points-a.points);
+  $("rankList").innerHTML=ranked.map((g,k)=>`<div style="border-inline-start:6px solid ${COLORS[g.i]}"><span>${["🥇","🥈","🥉","4️⃣"][k]} ${esc(g.name)}</span><span>⭐ ${toAr(g.points)} · ${toAr(g.stations)} محطات</span></div>`).join("");
+  open("winModal");
+}
+
+/* ============ النوافذ ============ */
+function open(id){ $(id).classList.remove("hidden"); }
+function close(id){ $(id).classList.add("hidden"); }
+document.querySelectorAll(".overlay").forEach(o=>{
+  o.addEventListener("click",e=>{ if(e.target===o||e.target.hasAttribute("data-close")) o.classList.add("hidden"); });
+});
+
+/* لوحة المعلمة */
+let draft=null;
+function openDash(){
+  draft=JSON.parse(JSON.stringify({settings:S.settings,groups:S.groups}));
+  seg("segTime",[30,45,60,90,120],"time");
+  seg("segPts",[30,50,100],"pts");
+  renderGEdit(); open("dashModal");
+}
+function seg(id,vals,key){
+  $(id).innerHTML=vals.map(v=>`<button class="${draft.settings[key]===v?'on':''}" data-v="${v}">${toAr(v)}</button>`).join("");
+  $(id).querySelectorAll("button").forEach(b=>b.onclick=()=>{ draft.settings[key]=+b.dataset.v; seg(id,vals,key); });
+}
+function renderGEdit(){
+  $("gEdit").innerHTML=draft.groups.map((g,i)=>`
+    <div class="gedit"><input value="${esc(g.name)}" data-i="${i}" style="border-inline-start:6px solid ${COLORS[i]}">
+    <button class="sm" data-i="${i}" data-d="-10">−١٠</button><span class="pts">${toAr(g.points)}</span><button class="sm" data-i="${i}" data-d="10">+١٠</button></div>`).join("");
+  $("gEdit").querySelectorAll("input").forEach(inp=>inp.oninput=()=>draft.groups[+inp.dataset.i].name=inp.value.trim()||DEFAULT_NAMES[+inp.dataset.i]);
+  $("gEdit").querySelectorAll(".sm").forEach(b=>b.onclick=()=>{ const g=draft.groups[+b.dataset.i]; g.points=Math.max(0,g.points+ +b.dataset.d); renderGEdit(); });
+}
+$("dashBtn").onclick=openDash;
+$("saveBtn").onclick=()=>{
+  S.settings=draft.settings;
+  draft.groups.forEach((g,i)=>{ S.groups[i].name=g.name; S.groups[i].points=g.points; });
+  save(); renderBoard(); close("dashModal"); toast("✔ تم حفظ الإعدادات");
+};
+$("resetBtn").onclick=()=>open("confirmModal");
+$("yesReset").onclick=()=>{
+  const keep={settings:S.settings,names:S.groups.map(g=>g.name),mode:S.mode};
+  S=fresh(); S.settings=keep.settings; S.mode=keep.mode; S.groups.forEach((g,i)=>g.name=keep.names[i]);
+  clearInterval(timerId); save(); renderBoard();
+  close("confirmModal"); close("dashModal"); close("winModal");
+  $("qCard").classList.add("hidden"); $("startCard").classList.remove("hidden");
+  toast("🔄 عادت القطارات إلى البداية");
+};
+$("dashReportBtn").onclick=()=>{ close("dashModal"); openReport(); };
+$("howBtn").onclick=()=>open("howModal");
+$("reportBtn").onclick=openReport;
+$("winReport").onclick=()=>{ close("winModal"); openReport(); };
+$("newGame").onclick=()=>{ close("winModal"); open("confirmModal"); };
+
+/* تقرير الإتقان */
+function level(p){ if(p===null) return ["lv-n","—"]; if(p>=80) return ["lv-h","إتقان عالٍ"]; if(p>=60) return ["lv-m","متوسط"]; return ["lv-l","يحتاج دعم"]; }
+function pct(a,c){ return a? Math.round(c/a*100) : null; }
+function cell(a,c){ const p=pct(a,c), [cls,lb]=level(p); return `<td class="${cls}">${p===null?"—":toAr(p)+"٪"}<br><small>${lb}${a?` (${toAr(c)}/${toAr(a)})`:""}</small></td>`; }
+function openReport(){
+  $("repDate").textContent=new Date().toLocaleDateString("ar-SA-u-ca-islamic-umalqura",{year:"numeric",month:"long",day:"numeric"});
+  let h=`<table><tr><th>المجموعة</th>${TYPES.map(t=>`<th>${t}</th>`).join("")}<th>الإجمالي</th></tr>`;
+  S.groups.forEach((g,i)=>{
+    const M=S.mastery[i]; const A=M.reduce((s,x)=>s+x.a,0), C=M.reduce((s,x)=>s+x.c,0);
+    h+=`<tr><th style="background:${COLORS[i]}">${esc(g.name)}</th>${M.map(x=>cell(x.a,x.c)).join("")}${cell(A,C)}</tr>`;
+  });
+  const colA=TYPES.map((_,t)=>S.mastery.reduce((s,M)=>s+M[t].a,0)), colC=TYPES.map((_,t)=>S.mastery.reduce((s,M)=>s+M[t].c,0));
+  h+=`<tr><th>الفصل كاملاً</th>${TYPES.map((_,t)=>cell(colA[t],colC[t])).join("")}${cell(colA.reduce((a,b)=>a+b,0),colC.reduce((a,b)=>a+b,0))}</tr></table>`;
+  const weak=TYPES.map((t,k)=>({t,p:pct(colA[k],colC[k])})).filter(x=>x.p!==null&&x.p<60).map(x=>x.t);
+  if(weak.length) h+=`<p class="explain">📌 مهارات تحتاج إعادة شرح: <b>${weak.join("، ")}</b></p>`;
+  $("repBody").innerHTML=h; open("reportModal");
+}
+$("printBtn").onclick=()=>{ try{ window.print(); }catch(e){} setTimeout(()=>toast("إذا لم تظهر نافذة الطباعة افتحي اللعبة من رابطها المباشر"),500); };
+
+/* البداية */
+document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".mode").forEach(x=>x.classList.remove("on")); b.classList.add("on"); S.mode=b.dataset.mode; save();
+});
+$("startBtn").onclick=showQuestion;
+$("nextBtn").onclick=showQuestion;
+$("skipBtn").onclick=()=>{ clearInterval(timerId); endQuestion(null,"⏭️ تم تخطي السؤال"); };
+
+function confetti(n){
+  const ic=["⭐","🌿","🚂","🍃","🏆","🌼"];
+  for(let i=0;i<n;i++){ const s=document.createElement("div"); s.className="confetti"; s.textContent=ic[i%ic.length];
+    s.style.left=Math.random()*100+"vw"; s.style.animationDuration=(2+Math.random()*2.5)+"s"; s.style.animationDelay=Math.random()*.5+"s";
+    document.body.appendChild(s); setTimeout(()=>s.remove(),5500); }
+}
+function toast(t){ const d=document.createElement("div"); d.className="toast"; d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),2600); }
+
+/* تشغيل */
+load();
+document.querySelectorAll(".mode").forEach(x=>x.classList.toggle("on",x.dataset.mode===S.mode));
+$("teacherPill").textContent="👩‍🏫 "+TEACHER;
+document.querySelectorAll(".teacherName").forEach(e=>e.textContent=TEACHER);
+renderBoard();
+</script>
+</body>
+</html>
